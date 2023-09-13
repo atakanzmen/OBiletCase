@@ -1,0 +1,127 @@
+﻿@model List<BusLocation>
+
+<div class="col-md-3"></div>
+
+<form class="col-md-6">
+	<div class="mb-12 text-center">
+		<h2 style="color:#d23b38">biletcim.com</h2>
+	</div>
+	<div class="">
+		<div class="col-md-12" style="margin:10px">
+			<label for="formGroupExampleInput" class="form-label">Nereden:</label>
+			<div class="dropdown">
+				<input id="originText" type="text" class="jAuto form-control"
+					   placeholder="Nereden" autocomplete="off">
+				<div class="dropdown-menu">
+					<i class="hasNoResults">Sonuç bulunamadı</i>
+					<div class="list-autocomplete">
+						@foreach (var i in Model)
+						{
+							<button onclick="TargetIdSelector(@i.Id, true)" type="button" class="dropdown-item" id="@i.Id">@i.Name</button>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12" style="margin:10px">
+			<label for="formGroupExampleInput2" class="form-label">Nereye:</label>
+			<div class="dropdown">
+				<input type="text" id="destinationText" class="jAuto form-control"
+					   placeholder="Nereye" autocomplete="off">
+				<div class="dropdown-menu">
+					<i class="hasNoResults">Sonuç bulunamadı</i>
+					<div class="list-autocomplete">
+						@foreach (var i in Model)
+						{
+							<button onclick="TargetIdSelector(@i.Id, false)" type="button" class="dropdown-item" id="@i.Id">@i.Name</button>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12" style="margin:10px; padding:0">
+			<div class="col-md-12">
+				<label class="form-label">Tarih:</label>
+			</div>
+			<div class="col-md-6">
+				<input class="form-control" type="date" id="date" name="date">
+			</div>
+			<div class="col-md-3">
+				<input type="button" class="btn btn-block  " value="Bugün" onclick="SetDate(Today())" style="background-color:#d23b38;   color: white;" />
+			</div>
+			<div class="col-md-3">
+				<input type="button" class="btn btn-block  " value="Yarın" onclick="SetDate(Tomorrow())" style="background-color:#d23b38;   color: white;" />
+			</div>
+		</div>
+	</div>
+	<div class="col-md-12" style="margin:10px; ">
+		<input type="button" class="btn btn-block  " value="Biletleri Listele" onclick="GetJourneys()" style="background-color:#d23b38;   color: white;" />
+	</div>
+</form>
+
+<div class="col-md-3"></div>
+
+<script>
+	$(document).ready(function () {
+		InitializeValues();
+		InitializeValidations();
+	});
+
+	var originId = 0;
+	var destinationId = 0;
+	function GetJourneys() {
+		var date = $('#date').val();
+		var originText = $('#originText').val();
+		var destinationText = $('#destinationText').val();
+
+		if (!originText || !destinationText || !date) {
+			alert("Lütfen alanları eksiksiz doldurunuz!");
+			return;
+		}
+
+		$.ajax({
+			url: "Home/SessionUpdate",
+			method: "GET",
+			data: { originId, destinationId, originText, destinationText }
+		});
+		location.href = "Journey/Index?originId="
+			+ originId
+			+ "&destinationId="
+			+ destinationId
+			+ "&date="
+			+ date;
+	};
+
+	function InitializeValues() {
+		originId = @Context.Session.GetInt32("origin");
+		destinationId = @Context.Session.GetInt32("destination");
+		document.getElementById("originText").value = '@Context.Session.GetString("originText")';
+		document.getElementById("destinationText").value = '@Context.Session.GetString("destinationText")';
+	}
+
+	function InitializeValidations() {
+		var today = new Date().toISOString().split('T')[0];
+		document.getElementById("date").setAttribute('min', today);
+	}
+
+	function TargetIdSelector(i, e) {
+		if (e)
+			originId = i;
+		else
+			destinationId = i;
+	};
+
+	function SetDate(date){
+		document.getElementById("date").value = date;
+	}
+
+	function Today(){
+		return new Date().toISOString().split('T')[0];
+	}
+
+	function Tomorrow(){
+		let tomorrow =  new Date();
+		tomorrow.setDate(tomorrow.getDate() + 1);
+		return tomorrow.toISOString().split('T')[0];
+	}
+</script>

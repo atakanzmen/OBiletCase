@@ -1,0 +1,47 @@
+﻿@model List<BusJourney>
+
+<div class="row text-center" style="background-color: #d23b38; color:white; margin-bottom:20px">
+	<h2>
+		@Model.First().OriginLocation - @Model.First().DestinationLocation
+	</h2>
+	<h2>
+		@Model.First().Journey.Departure.Value.ToShortDateString()
+	</h2>
+</div>
+@foreach (var item in Model)
+{
+	<div class="card" style="margin-bottom:20px">
+		<div class="card-header">
+			<div>
+				<h3>@item.PartnerName</h3>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-md-10">
+					<div class="col-md-3">
+						<p>Saat: <b>@item.Journey.Departure.Value.ToShortTimeString()</b></p>
+					</div>
+					<div class="col-md-3">
+						<p>Otobüs: <b>@item.BusType</b></p>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<button type="button" class="btn" style="background-color: #d23b38; color:white;">@item.Journey.InternetPrice @item.Journey.Currency</button>
+				</div>
+				<div class="col-md-12" style="padding:20px">
+					<ul>
+						@foreach (var item2 in item.Journey.Features)
+						{
+							<li>@item2</li>
+						}
+					</ul>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+				</div>
+			</div>
+		</div>
+	</div>
+}
